@@ -237,33 +237,41 @@ def handle_turnstile(sb) -> bool:
 def login(sb) -> bool:
     print(f"🌐 打开登录页面: {LOGIN_URL}")
     sb.uc_open_with_reconnect(LOGIN_URL, reconnect_time=5)
-    time.sleep(6)
 
-    print("⏳ 等待 Cloudflare 验证通过...")
-    cf_passed = False
+    # 该站点登录页不存在 Cloudflare 人机验证，只是前端 SPA 需要时间渲染表单。
+    # 这里改为直接轮询等待表单元素出现，不再假设存在 CF challenge。
+    print("⏳ 等待前端页面渲染出登录表单...")
+    form_ready = False
     for i in range(30):
-        page_src = sb.get_page_source() or ""
-        if 'input[name="email"]' in page_src.lower() or 'name="email"' in page_src.lower():
-            cf_passed = True
-            print(f"✅ Cloudflare 验证已通过（{i+1}s）")
+        try:
+            page_src = sb.get_page_source() or ""
+        except Exception:
+            page_src = ""
+        if 'name="email"' in page_src.lower():
+            form_ready = True
+            print(f"✅ 登录表单已渲染（{i+1}s）")
             break
         time.sleep(1)
-    if not cf_passed:
-        print("⚠️ Cloudflare 验证可能未通过，继续尝试...")
 
-    try:
-        sb.wait_for_element('input[name="email"]', timeout=15)
-    except Exception:
+    if not form_ready:
         try:
-            sb.wait_for_element('input[name="Email"]', timeout=5)
+            sb.wait_for_element('input[name="email"]', timeout=15)
+            form_ready = True
         except Exception:
-            print("❌ 页面未加载出登录表单")
-            cur_url = sb.get_current_url()
-            page_title = sb.get_title() or ""
-            print(f"  当前 URL: {cur_url}")
-            print(f"  当前标题: {page_title}")
-            sb.save_screenshot("login_load_fail.png")
-            return False
+            try:
+                sb.wait_for_element('input[name="Email"]', timeout=5)
+                form_ready = True
+            except Exception:
+                pass
+
+    if not form_ready:
+        print("❌ 页面未加载出登录表单")
+        cur_url = sb.get_current_url()
+        page_title = sb.get_title() or ""
+        print(f" 当前 URL: {cur_url}")
+        print(f" 当前标题: {page_title}")
+        sb.save_screenshot("login_load_fail.png")
+        return False
 
     print("🍪 关闭可能的 Cookie 弹窗...")
     try:
@@ -283,13 +291,15 @@ def login(sb) -> bool:
     js_fill_input(sb, 'input[name="password"]', PASSWORD)
     time.sleep(1)
 
+    # 仅当页面上确实存在 Turnstile 元素时才尝试处理，避免误判导致流程卡死
     if sb.execute_script(_EXISTS_JS):
+        print("🔍 检测到 Turnstile 元素，开始处理...")
         if not handle_turnstile(sb):
             print("❌ 登录界面的 Turnstile 验证失败")
             sb.save_screenshot("login_turnstile_fail.png")
             return False
     else:
-        print("ℹ️ 未检测到 Turnstile")
+        print("ℹ️ 未检测到 Turnstile，直接提交登录")
 
     print("🖱️ 点击登录按钮提交登录...")
     sb.click('button[type="submit"]')
