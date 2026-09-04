@@ -1,8 +1,8 @@
-## 🚀 lunes host 自动登录续期（GitHub Actions）
+## 🚀 HoHai Tv 自动登录续期（GitHub Actions）
 
-这是一个基于 GitHub Actions 的自动化脚本，用于定时登录自动续期[lunes host](https://betadash.lunes.host/) 应用。
+这是一个基于 GitHub Actions 的自动化脚本，用于定时登录自动续期[https://tv.hohai.eu.org/login] 应用。
 
-⚠️ 有cf盾,太垃圾的机房节点可能过不了，建议用稍微干净点的节点  [B2proxy住宅代理](https://www.b2proxy.com/signup?code=0F5133)
+⚠️ 有cf盾,太垃圾的机房节点可能过不了，建议用稍微干净点的节点
 
 ━━━━━━━━━━━━━━━━━━━━━━
 
