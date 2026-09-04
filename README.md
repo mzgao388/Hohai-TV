@@ -10,8 +10,8 @@
 
 | Secret 名称         | 是否必填 | 说明                                              |
 |---------------------|----------|---------------------------------------------------|
-| LUNES_EMAIL     | ✅ 必填  | lunes 登录邮箱                                    |
-| LUNES_PASSWORD  | ✅ 必填  | lunes 登录密码                                    | 
+| LUNES_EMAIL     | ✅ 必填  | hohai 登录邮箱或账号                              |
+| LUNES_PASSWORD  | ✅ 必填  | hohai 登录密码                                    | 
 | NODE_LINK       | ❌ 可选  | 代理链接，如 vless:// vmess:// tuic:// hysteria2:// anttls:// socks5://|
 | TG_BOT_TOKEN    | ❌ 可选  | Telegram Bot Token（用于发送通知）                     |
 | TG_CHAT_ID      | ❌ 可选  | Telegram Chat ID（接收通知的用户或群组 ID）              |
